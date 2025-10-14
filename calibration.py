@@ -12,9 +12,16 @@ criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 objp = np.zeros((width*height,3), np.float32)
 objp[:,:2] = np.mgrid[0:width,0:height].T.reshape(-1,2)
 
+fx = 595.21
+fy = 595.21
+cx = 984.515
+cy = 599.035
+
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
+camMatrix = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
+
 
 images = glob.glob('images/*.jpg')
 i = 0
@@ -46,7 +53,8 @@ ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.sha
 with open("coefficients.txt", "w") as file:
     file.write(str(dist))
 
-for fname in images:
+distorted = glob.glob('distorted/*.jpg')
+for fname in distorted:
     img = cv.imread(fname)
     h,  w = img.shape[:2]
     newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
