@@ -60,3 +60,5 @@ for fname in glob.glob("images/*.jpg"):
     x, y, w, h = roi
     dst = dst[y:y+h, x:x+w]
     cv.imwrite("images/undistorted-" + fname, dst)
+    cv.imshow(dst)
+    cv.waitKey(500)
