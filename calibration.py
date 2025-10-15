@@ -68,4 +68,4 @@ for fname in distorted:
     print("undistorted/" + str(fname))
     cv.imwrite("undistorted/" + str(fname), dst)
     cv.imshow("undistorted", dst)
-    cv.waitKey(250)
+    cv.waitKey(2000)
