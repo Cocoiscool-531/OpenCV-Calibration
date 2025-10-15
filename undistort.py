@@ -1,0 +1,32 @@
+import cv2 as cv
+import numpy as np
+import glob
+from tqdm import tqdm
+
+loaded = np.load("results.npz")
+# print(results)
+mtx = loaded['arr_0']
+dist = loaded['arr_1']
+camMatrix = loaded['arr_2']
+
+distorted = glob.glob('distorted/*.jpg')
+
+for fname in tqdm(distorted, unit=" images", desc="Undistorting"):
+    img = cv.imread(fname)
+    h,  w = img.shape[:2]
+    newCamMatrix, roi = cv.getOptimalNewCameraMatrix(camMatrix, dist, (w, h), 1, (w, h))
+
+    # undistort
+    # Test newcameramtx (calculated) vs camMatrix (found from 3d zephyr)
+    dst = cv.undistort(img, mtx, dist, None, newCamMatrix)
+
+    # crop the image
+    # x, y, w, h = roi
+    # dst = dst[y:y+h, x:x+w]
+
+    path = "undistorted/" + (fname.split("/", 1)[1])
+
+    # print(path)
+    cv.imwrite(path, dst)
+    # cv.imshow("undistorted", dst)
+    # cv.waitKey(2000)
