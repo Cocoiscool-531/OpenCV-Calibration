@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Calibrations>
+     <Camera vid="" pid="">
+          <!--ELP High Speed Global Shutter 120degree - Calibrated using OpenCV tooling by Team 19410. Calibrated to 8 distortion coefficients -->
+          <Calibration size="1920 1200" focalLength="595.21f, 595.21f" principalPoint="984.515f, 599.035f" distortionCoefficients="-0.19379950351155378f, 0.9572528433169024f, 8.786039178491784e-05f, 0.0006874214977871622f, 0.05263611967942891f, -0.16304030237821782f, 0.9008830956829472f"/>
+     </Camera>
+</Calibrations>

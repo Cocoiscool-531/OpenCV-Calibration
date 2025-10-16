@@ -85,7 +85,7 @@ root = ET.Element("Calibrations")
 
 camera = ET.SubElement(root, "Camera", vid=cameraVid, pid=cameraPid)
 
-camera.insert(1, ET.Comment(cameraName + " - Calibrated using OpenCV tooling by Team 19410. Calibrated to 8 distortion coefficients "))
+camera.insert(1, ET.Comment(cameraName + " - Calibrated using OpenCV tooling - Script created by Team 19410. Calibrated to 8 distortion coefficients "))
 
 
 calibration = ET.SubElement(camera, "Calibration",
