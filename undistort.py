@@ -26,7 +26,4 @@ for fname in tqdm(distorted, unit=" images", desc="Undistorting"):
 
     path = "undistorted/" + (fname.split("/", 1)[1])
 
-    # print(path)
     cv.imwrite(path, dst)
-    # cv.imshow("undistorted", dst)
-    # cv.waitKey(2000)
