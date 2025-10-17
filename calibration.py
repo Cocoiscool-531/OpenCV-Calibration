@@ -11,8 +11,8 @@ patternHeight = 8
 resolutionWidth = 1920
 resolutionHeight = 1200
 cameraName = "ELP High Speed Global Shutter 120degree"
-cameraVid = "" #ToDo find this
-cameraPid = "" #ToDo find this
+cameraVid = "0x32E4"
+cameraPid = "0x0234"
 
 fx = 595.21
 fy = 595.21
@@ -94,7 +94,7 @@ calibration = ET.SubElement(camera, "Calibration",
                             principalPoint         = str(cx) + "f, " + str(cy) + "f",
                             distortionCoefficients = coefficientsAsString)
 
-xmlString = parseString(ET.tostring(root, 'utf-8', xml_declaration=False)).toprettyxml(indent="     ").replace("<?xml version=\"1.0\" ?>", "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>")
+xmlString = parseString(ET.tostring(root, 'utf-8', xml_declaration=False)).toprettyxml(indent=" ").replace("<?xml version=\"1.0\" ?>", "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>")
 
 with open("calibrated.xml", "w") as file:
     file.writelines(xmlString)
