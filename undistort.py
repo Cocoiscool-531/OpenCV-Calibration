@@ -3,7 +3,7 @@ import numpy as np
 import glob
 from tqdm import tqdm
 
-loaded = np.load("results.npz")
+loaded = np.load("output/results.npz")
 # print(results)
 mtx = loaded['arr_0']
 dist = loaded['arr_1']
