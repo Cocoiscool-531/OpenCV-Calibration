@@ -1,3 +1,4 @@
 undistorted/**
-output/calibrated.xml
-output/results.npz
+!undistorted/README.md
+output/**
+!output/README.md
