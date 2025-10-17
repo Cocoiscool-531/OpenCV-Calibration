@@ -1,13 +1,16 @@
 import cv2 as cv
 import numpy as np
 import glob
+import time
 from tqdm import tqdm
 
-loaded = np.load("results.npz")
+loaded = np.load("output/results.npz")
 # print(results)
 mtx = loaded['arr_0']
 dist = loaded['arr_1']
 camMatrix = loaded['arr_2']
+
+startTime = time.time()
 
 distorted = glob.glob('distorted/*.jpg')
 
@@ -27,3 +30,4 @@ for fname in tqdm(distorted, unit=" images", desc="Undistorting"):
     path = "undistorted/" + (fname.split("/", 1)[1])
 
     cv.imwrite(path, dst)
+print("Total runtime was {} seconds".format(time.time() - startTime))

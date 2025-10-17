@@ -6,6 +6,8 @@ import xml.etree.cElementTree as ET
 from xml.dom.minidom import parseString
 import time
 
+FAST_RUN = False # Only evaluates the first found image. Testing only, not for final calibrations
+
 patternWidth = 5
 patternHeight = 8
 resolutionWidth = 1920
@@ -39,8 +41,12 @@ imgPoints = [] # 2d points in image plane.
 camMatrix = np.array([np.array([fx, 0, cx]), np.array([0, fy, cy]), np.array([0, 0, 1])])
 
 i = 0
-timer = time.time()
+startTime = time.time()
 images = glob.glob('calibration/*.jpg')
+
+if FAST_RUN:
+    images = [images[1]]
+
 for fileName in tqdm(images, unit=" images", desc="Gathering data"):
     i += 1
     img = cv.imread(fileName)
@@ -57,7 +63,7 @@ for fileName in tqdm(images, unit=" images", desc="Gathering data"):
         corners = cv.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
         imgPoints.append(corners)
 
-print("\nDone gathering data! Finished in {}s for {} images. Avg {}ms / image".format((time.time() - timer), len(images), (1000*(time.time() - timer))/len(images)))
+print("\nDone gathering data! Finished in {}s for {} images. Avg {}ms / image".format((time.time() - startTime), len(images), (1000*(time.time() - startTime))/len(images)))
 
 print("\nCalibrating matrices:")
 
@@ -65,9 +71,10 @@ timer = time.time_ns()
 ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objPoints, imgPoints, gray.shape[::-1], None, None, flags=cv.CALIB_RATIONAL_MODEL)
 print("\nDone calibrating! Finished in {}ms".format((time.time_ns() - timer)/1000000))
 
-file = "results.npz"
+file = "output/results.npz"
+print("\nSaving npz to " + file + "...")
 np.savez(file, mtx, dist, camMatrix)
-print("\nnpz results saved to '{}'!".format(file))
+print("npz results saved to '{}'!".format(file))
 print("\nSaving to xml:")
 
 # Create XML file using camMatrix and distortion coefficients
@@ -96,8 +103,8 @@ calibration = ET.SubElement(camera, "Calibration",
 
 xmlString = parseString(ET.tostring(root, 'utf-8', xml_declaration=False)).toprettyxml(indent=" ").replace("<?xml version=\"1.0\" ?>", "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>")
 
-with open("calibrated.xml", "w") as file:
+with open("output/calibrated.xml", "w") as file:
     file.writelines(xmlString)
 
-
-
+print("xml results saved to 'output/calibrated.xml'!")
+print("\nTotal runtime was {}s".format(time.time() - startTime))
