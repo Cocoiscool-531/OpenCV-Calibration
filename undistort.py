@@ -5,6 +5,7 @@ import time
 from tqdm import tqdm
 
 UNDISTORT_CALIBRATION = True # If true, also undistorts all files in the calibration directory
+FAST_RUN = False # Only fixes the first found image.
 
 loaded = np.load("output/results.npz")
 mtx = loaded['arr_0']
@@ -16,6 +17,9 @@ startTime = time.time()
 distorted = glob.glob('distorted/*.jpg')
 if UNDISTORT_CALIBRATION:
     distorted.extend(glob.glob('calibration/*.jpg'))
+
+if FAST_RUN:
+    distorted = [distorted[0]]
 
 for fname in tqdm(distorted, unit=" images", desc="Undistorting"):
     img = cv.imread(fname)
