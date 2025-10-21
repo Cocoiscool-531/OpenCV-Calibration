@@ -2,3 +2,5 @@ undistorted/**
 !undistorted/README.md
 output/**
 !output/README.md
+calibration/*
+!calibration/*.mp4
