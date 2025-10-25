@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 import glob
+import os
 from tqdm import tqdm
 import xml.etree.cElementTree as ET
 from xml.dom.minidom import parseString
@@ -8,8 +9,8 @@ import time
 
 FAST_RUN = False # Only evaluates the first found image. Testing only, not for final calibrations
 
-patternWidth = 5
-patternHeight = 8
+patternWidth = 9
+patternHeight = 6
 resolutionWidth = 1920
 resolutionHeight = 1200
 cameraName = "ELP High Speed Global Shutter 120degree"
@@ -32,6 +33,8 @@ objp[:,:2] = np.mgrid[0:patternWidth, 0:patternHeight].T.reshape(-1, 2)
 objPoints = [] # 3d point in real world space
 imgPoints = [] # 2d points in image plane.
 
+skipDataCollection = False
+
 #  ---       ---
 # | fx   0   cx |
 # | 0   fy   cy |
@@ -40,36 +43,52 @@ imgPoints = [] # 2d points in image plane.
 
 camMatrix = np.array([np.array([fx, 0, cx]), np.array([0, fy, cy]), np.array([0, 0, 1])])
 
+if os.path.isfile("output/pointData.npz"):
+    if input("Skip data collection? (Still requires at least one .jpg in calibration directory) (y/N): ") == "y":
+        skipDataCollection = True
+        load = np.load("output/pointData.npz")
+        imgPoints = load["arr_0"]
+        objPoints = load["arr_1"]
+
+
 i = 0
 startTime = time.time()
-images = glob.glob('calibration/*.jpg')
+gray = cv.cvtColor(cv.imread(glob.glob('calibration/*.jpg')[0]), cv.COLOR_BGR2GRAY)
 
-if FAST_RUN:
-    images = [images[1]]
+if not skipDataCollection:
+    images = glob.glob('calibration/*.jpg')
 
-for fileName in tqdm(images, unit=" images", desc="Gathering data"):
-    i += 1
-    img = cv.imread(fileName)
-    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    if FAST_RUN:
+        images = [images[1]]
 
-    # Find the chess board corners
-    ret, corners = cv.findChessboardCorners(gray, (patternWidth, patternHeight), None)
+    for fileName in tqdm(images, unit=" images", desc="Gathering data"):
+        i += 1
+        img = cv.imread(fileName)
+        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-    # If found, add object points, image points (after refining them)
-    if ret:
+        # Find the chess board corners
+        ret, corners = cv.findChessboardCorners(gray, (patternWidth, patternHeight), None)
 
-        objPoints.append(objp)
+        # If found, add object points, image points (after refining them)
+        if ret:
+            objPoints.append(objp)
 
-        corners = cv.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
-        imgPoints.append(corners)
+            corners = cv.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
+            imgPoints.append(corners)
+        else:
+            os.rename(fileName, "calibration/ignore" + fileName[fileName.find("/"):len(fileName)])
 
-print("\nDone gathering data! Finished in {}s for {} images. Avg {}ms / image".format((time.time() - startTime), len(images), (1000*(time.time() - startTime))/len(images)))
+    np.savez("output/pointData.npz", imgPoints, objPoints)
+    print("\nDone gathering data! Finished in {}m for {} images. Avg {}ms / image".format((time.time()/60 - startTime/60), len(images), (1000*(time.time() - startTime))/len(images)))
+
+if input("Continue to calibration? (Y/n): ") == "n":
+    exit()
 
 print("\nCalibrating matrices:")
 
-timer = time.time_ns()
+timer = time.time()
 ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objPoints, imgPoints, gray.shape[::-1], None, None, flags=cv.CALIB_RATIONAL_MODEL)
-print("\nDone calibrating! Finished in {}ms".format((time.time_ns() - timer)/1000000))
+print("\nDone calibrating! Finished in {}ms".format((time.time() - timer)))
 
 file = "output/results.npz"
 print("\nSaving npz to " + file + "...")
@@ -107,4 +126,4 @@ with open("output/calibrated.xml", "w") as file:
     file.writelines(xmlString)
 
 print("xml results saved to 'output/calibrated.xml'!")
-print("\nTotal runtime was {}s".format(time.time() - startTime))
+print("\nTotal runtime was {}m".format(time.time()/60 - startTime/60))

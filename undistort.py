@@ -1,10 +1,11 @@
+import os
 import cv2 as cv
 import numpy as np
 import glob
 import time
 from tqdm import tqdm
 
-UNDISTORT_CALIBRATION = True # If true, also undistorts all files in the calibration directory
+UNDISTORT_CALIBRATION = False # If true, also undistorts all files in the calibration directory
 FAST_RUN = False # Only fixes the first found image.
 
 loaded = np.load("output/results.npz")
@@ -13,6 +14,12 @@ dist = loaded['arr_1']
 camMatrix = loaded['arr_2']
 
 startTime = time.time()
+
+if input("Delete all files in undistorted directory? (y/N): ") == "y":
+    undistorted = glob.glob("undistorted/*")
+    for f in tqdm(undistorted, unit=" files", desc="Deleting"):
+        os.remove(f)
+
 
 distorted = glob.glob('distorted/*.jpg')
 if UNDISTORT_CALIBRATION:

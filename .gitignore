@@ -4,3 +4,6 @@ output/**
 !output/README.md
 calibration/*
 !calibration/*.mp4
+!calibration/*.avi
+distorted/*
+/.idea/material_theme_project_new.xml
